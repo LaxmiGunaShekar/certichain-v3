@@ -1,38 +1,508 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
+:root {
+  --primary-glow: #00c2ff;
+  --secondary-glow: #ff00c2;
+  --background-dark: #0d1117;
+  --background-light: #161b22;
+  --border-color: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --glass-bg: rgba(22, 27, 34, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+  font-family: "Space Grotesk", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.App {
+  text-align: center;
+}
 .App-header {
-  background-color: #282c34;
+  background-color: var(--background-dark);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
+  color: var(--text-primary);
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: linear-gradient(-45deg, #0d1117, #1e2a38, #0d1117, #381e30);
+  background-size: 400% 400%;
+  animation: gradient-animation 15s ease infinite;
+}
+.hero-section h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  background: -webkit-linear-gradient(
+    45deg,
+    var(--primary-glow),
+    #ffffff,
+    var(--secondary-glow)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 15px;
+  letter-spacing: -1px;
+}
+.hero-section .quote {
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+  max-width: 90%;
+}
+.launch-button {
+  font-size: 1.2rem;
+  padding: 12px 24px;
+  background: linear-gradient(
+    45deg,
+    var(--primary-glow),
+    var(--secondary-glow)
+  );
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  width: auto;
+  max-width: 300px;
+}
+.launch-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px var(--primary-glow), 0 0 30px var(--secondary-glow);
+}
+.info-section {
+  width: 90%;
+  max-width: 1200px;
+  margin: 80px 0;
+  padding: 30px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+}
+.info-section h2 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+  border-bottom: 2px solid var(--primary-glow);
+  display: inline-block;
+  padding-bottom: 10px;
+}
+.features-grid,
+.how-it-works-grid {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 30px;
+}
+.feature-card,
+.step-card {
+  background: var(--background-dark);
+  padding: 25px;
+  border-radius: 15px;
+  border: 1px solid var(--border-color);
+  width: auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+.feature-card:hover,
+.step-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  border-color: var(--primary-glow);
+}
+.feature-card i,
+.step-card i {
+  font-size: 2.5rem;
+  color: var(--primary-glow);
+  margin-bottom: 15px;
+}
+.feature-card h3,
+.step-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
   color: white;
 }
-
-.App-link {
-  color: #61dafb;
+.step-card h3 {
+  color: var(--primary-glow);
+}
+.footer {
+  margin-top: 60px;
+  padding-top: 30px;
+  border-top: 1px solid var(--border-color);
+  width: 90%;
+  max-width: 1200px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.dapp-container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+.navbar {
+  width: 100%;
+  background-color: var(--background-light);
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  padding: 5px;
+}
+.navbar button {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 8px 5px;
+  border-radius: 6px;
+  transition: color 0.2s ease;
+  border-bottom: 2px solid transparent;
+  flex-grow: 1;
+  text-align: center;
+}
+.navbar button:hover,
+.navbar button.active {
+  color: var(--primary-glow);
+  border-bottom: 2px solid var(--primary-glow);
+}
+.connect-wallet-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid var(--glass-border);
+  max-width: 90%;
+  margin: 40px auto;
+}
+form,
+.admin-section,
+.issuer-section,
+.public-verifier-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid var(--glass-border);
+  margin: auto;
+  max-width: 90%;
+}
+.dashboard-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+.dashboard-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0 auto 20px;
+  max-width: 90%;
+  line-height: 1.6;
+}
+input[type="text"] {
+  width: calc(100% - 24px);
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-dark);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: "Space Grotesk", sans-serif;
+}
+button {
+  width: auto;
+  min-width: 150px;
+  padding: 12px 25px;
+  border-radius: 8px;
+  border: 1px solid var(--primary-glow);
+  background-color: var(--button-bg);
+  color: var(--primary-glow);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin-top: 15px;
+  font-family: "Space Grotesk", sans-serif;
+}
+button:hover:not(:disabled) {
+  background-color: var(--primary-glow);
+  color: white;
+}
+.document-list {
+  margin-top: 30px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.document-item {
+  background: var(--background-light);
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 15px;
+  text-align: left;
+  transition: border-color 0.2s ease;
+}
+.document-item a {
+  color: var(--primary-glow);
+  text-decoration: none;
+  font-weight: bold;
+  position: relative;
+  transition: color 0.3s ease;
+}
+.document-item a::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--secondary-glow);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+.document-item a:hover {
+  color: var(--secondary-glow);
+}
+.document-item a:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+.login-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+.disconnect-button {
+  background-color: #ff4d4d !important;
+  border-color: #ff4d4d !important;
+  color: white !important;
+  font-weight: bold;
+}
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 600px;
+  margin: auto;
+}
+.balance-display {
+  background-color: var(--background-light);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (min-width: 768px) {
+  .hero-section h1 {
+    font-size: 4rem;
   }
-  to {
-    transform: rotate(360deg);
+  .features-grid,
+  .how-it-works-grid {
+    flex-direction: row;
+  }
+  .feature-card,
+  .step-card {
+    width: 200px;
+  }
+  .navbar {
+    justify-content: center;
+    gap: 15px;
+  }
+  .navbar button {
+    font-size: 1rem;
+    padding: 10px 20px;
+    flex-grow: 0;
+  }
+  .dashboard-title {
+    font-size: 2rem;
+  }
+  .dashboard-description {
+    font-size: 1rem;
+  }
+  form,
+  .admin-section,
+  .issuer-section,
+  .public-verifier-section {
+    max-width: 550px;
+  }
+  .document-list {
+    max-width: 550px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-section h1 {
+    font-size: 5rem;
+  }
+  .info-section {
+    padding: 50px;
+  }
+  .info-section h2 {
+    font-size: 2.8rem;
+  }
+  .feature-card,
+  .step-card {
+    width: 300px;
+  }
+  .dapp-container {
+    max-width: 900px;
+  }
+}
+/* Add this to your App.css file */
+
+.profile-dashboard-section .dashboard-content {
+  display: flex; /* This is the magic! It creates the column layout. */
+  align-items: flex-start; /* Aligns items to the top */
+  gap: 30px; /* Adds a nice space between the two columns */
+  margin-top: 20px;
+}
+
+.dashboard-visuals {
+  flex: 1; /* Tells this column to take up available space */
+}
+
+.dashboard-doc-list {
+  flex: 2; /* Tells this column to take up twice as much space */
+}
+/* Add this to your App.css to style all "card" elements */
+
+.card {
+  background-color: #1a1a2e; /* A background color slightly lighter than the page's background */
+  border: 1px solid #4a4a68; /* This is the outline you wanted! */
+  border-radius: 15px; /* This will give it the nice rounded corners from your drawing */
+  padding: 24px; /* This adds some space inside the card, so the content isn't touching the edge */
+  margin-top: 25px; /* Adds some space above the card */
+}
+/* Add or Modify this in your App.css file */
+
+.navbar {
+  display: flex; /* This is the key: arranges items in a row */
+  justify-content: space-around; /* This pushes the items to the opposite ends */
+  align-items: center; /* This vertically centers them on the line */
+  padding: 1rem 0; /* Adds some vertical spacing */
+  margin-bottom: 1.5rem; /* Adds some space below the header */
+  border-bottom: 1px solid #4a4a68; /* A subtle line to frame the top of the app */
+}
+/* =================================================================
+   RESPONSIVE STYLES (for screens smaller than 768px)
+   ================================================================= */
+
+@media (max-width: 768px) {
+  /* --- General Adjustments --- */
+  .card {
+    /* Reduce padding on cards for smaller screens */
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 2.5rem; /* Make main title smaller */
+  }
+
+  h2 {
+    font-size: 1.8rem;
+  }
+
+  /* --- Landing Page Grids --- */
+  .features-grid,
+  .how-it-works-grid {
+    /* Change the 3-column grid to a 1-column stack */
+    grid-template-columns: 1fr;
+  }
+
+  /* --- Login & Role Selection --- */
+  .login-options {
+    /* Stack the login buttons vertically */
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* --- Main dApp --- */
+  .navbar {
+    /* Allow navbar items to wrap if needed */
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 1rem;
+  }
+
+  .main-content {
+    padding: 0 1rem;
+  }
+
+  /* --- Dashboard Two-Column Layout --- */
+  .dashboard-content {
+    /* This is the most important change! 
+       It stacks the dashboard chart and document list vertically. */
+    flex-direction: column;
+  }
+  /* Find your existing media query at the bottom of App.css */
+
+  @media (max-width: 768px) {
+    /* ... (all your other responsive styles are here) ... */
+
+    /* === ADD THESE NEW STYLES INSIDE THE MEDIA QUERY === */
+
+    /* --- Refinements for the User/Public Dashboard --- */
+    .dashboard-container {
+      /* Stack the chart and the stats text vertically */
+      flex-direction: column;
+      align-items: center; /* Center the items */
+      gap: 20px;
+    }
+
+    .dashboard-stats {
+      /* Remove the side margin that was for desktop view */
+      margin-left: 0;
+      text-align: center; /* Center the text as well */
+    }
   }
 }

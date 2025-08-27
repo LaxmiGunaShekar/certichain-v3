@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+# CertiChain v2 ⛓️✅
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> "Where there is a chain, there is Trust."
 
-## Available Scripts
+CertiChain v2 is a complete rebuild of the original CertiChain project, now powered by a modern, robust, and scalable Web3 stack. It is a full-stack decentralized application (dApp) designed to securely store, manage, and verify documents on the blockchain, creating a single source of truth for credentials and eliminating digital document fraud.
 
-In the project directory, you can run:
+This project leverages the security of the Ethereum blockchain and the decentralized nature of IPFS to create a trustless ecosystem for students, issuing institutions, and recruiters.
 
-### `npm start`
+---
+## Core Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+* **👤 User Dashboard:** Users can securely connect with a wide range of wallets (not just MetaMask) to upload their important documents (degrees, certificates, etc.). Each file is uploaded to IPFS for decentralized storage, and its unique hash is recorded on the blockchain in the user's personal on-chain portfolio.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+* **👑 Admin & 🎓 Issuer Dashboard:** The application features a role-based access system.
+    * The **Admin** (the contract owner) has the exclusive ability to authorize trusted institutions (e.g., universities, companies) by adding their wallet addresses as official "Issuers".
+    * **Issuers** can then search for any user's profile and see a list of their unverified documents. With a single transaction, an issuer can cryptographically verify a document, creating a permanent and undeniable on-chain endorsement.
 
-### `npm test`
+* **🔍 Public Verifier:** Anyone, such as a recruiter or an admissions officer, can use the public verifier tool. By simply pasting a candidate's public wallet address, they can instantly view a complete portfolio of that user's documents and, most importantly, see which ones have been officially verified and by whom.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* **📱 Multi-Wallet & Responsive Design:** Built with Web3Modal v2 and a responsive UI, CertiChain v2 offers a seamless experience on both desktop and mobile, allowing users to connect with their favorite wallets, including MetaMask, Coinbase Wallet, Trust Wallet, and many others via WalletConnect.
 
-### `npm run build`
+---
+## Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+This project was built using a modern Web3 technology stack:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+* **Frontend:** **React.js**
+* **Web3 Connectivity:** **Wagmi** & **Viem** (for robust blockchain interaction and state management)
+* **Wallet Integration:** **Web3Modal v2** (for seamless multi-wallet support)
+* **Decentralized Storage:** **IPFS** via **Pinata**
+* **Smart Contract:** Written in **Solidity** and deployed on the **Sepolia Testnet**.
+* **Styling:** Plain CSS with a focus on responsiveness.
+* **Deployment:** **Vercel**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
+## Getting Started
 
-### `npm run eject`
+To run this project locally, follow these steps:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+**1. Clone the repository:**
+```bash
+git clone [https://github.com/Your-Username/certichain-v2.git](https://github.com/Your-Username/certichain-v2.git)
+cd certichain-v2
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 2. Install dependencies:
+This project uses Yarn.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+##Bash
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+yarn install
+## 3. Set up your environment variables:
+Create a .env file in the root of the project and add the following keys. You can get a free Project ID from WalletConnect Cloud.
 
-## Learn More
+REACT_APP_WALLETCONNECT_ID=
+REACT_APP_PINATA_API_KEY=
+REACT_APP_PINATA_API_SECRET=
+## 4. Run the development server:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Bash
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+yarn start
+The application will be available at http://localhost:3000.
