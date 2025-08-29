@@ -6,6 +6,8 @@ CertiChain v3 is a full-stack decentralized application (dApp) designed to secur
 
 This project showcases a complete development lifecycle, evolving from an initial concept to a fully-featured, responsive, and animated dApp built on a modern Web3 foundation.
 
+## Link: [**CertiChain-v3**](https://certichain-v3.vercel.app)
+
 ---
 ## What's New in v3?
 
