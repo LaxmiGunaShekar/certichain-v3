@@ -8,11 +8,13 @@ import { sepolia } from 'wagmi/chains';
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Import your page components
 import UserProfile from './components/UserProfile';
 import AdminIssuerPage from './components/AdminIssuerPage';
 import PublicVerifierPage from './components/PublicVerifierPage';
+import Notification from './components/Notification';
 import './App.css';
 
 // --- 1. Get projectID and create wagmiConfig ---
@@ -33,7 +35,7 @@ createWeb3Modal({ wagmiConfig, projectId, chains });
 const queryClient = new QueryClient();
 
 // --- Your Contract Details ---
-export const finalABI = [ 
+export const finalABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -50,6 +52,11 @@ export const finalABI = [
 				"internalType": "string",
 				"name": "_documentName",
 				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "_intendedIssuer",
+				"type": "address"
 			}
 		],
 		"name": "addDocument",
@@ -104,6 +111,11 @@ export const finalABI = [
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -132,6 +144,25 @@ export const finalABI = [
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "_issuer",
+				"type": "address"
+			}
+		],
+		"name": "getIssuerQueueCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "",
 				"type": "address"
 			}
@@ -142,6 +173,35 @@ export const finalABI = [
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "issuerVerificationQueue",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "docIndex",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -194,6 +254,11 @@ export const finalABI = [
 				"internalType": "bool",
 				"name": "isVerified",
 				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "intendedIssuer",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -217,15 +282,73 @@ export const finalABI = [
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-] ;
-export const contractAddress = "0x81298d0A12addC1D3E873169284F54C6dbA1F460";
+];
+export const contractAddress = "0x7fF4D5Da0615Ef4dBC7d4d913C28bF10fCa9959E";
 
 //============================================
 // LANDING PAGE COMPONENT
 //============================================
+// --- Add these animation definitions above your LandingPage component ---
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.2 }
+  }
+};
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1 }
+};
+
+
+//============================================
+// LANDING PAGE COMPONENT (ANIMATED VERSION)
+//============================================
 function LandingPage({ onLaunch }) {
-  // This component remains the same.
-  return ( <div className="landing-page"><div className="hero-section"><h1>CertiChain</h1><p className="quote">"Where there is a chain there is Trust"</p><button className="launch-button" onClick={onLaunch}>Launch dApp</button></div></div> );
+  return (
+    <motion.div 
+      className="landing-page"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div className="hero-section" variants={itemVariants}>
+        <h1>CertiChain</h1>
+        <p className="quote">"Where there is a chain there is Trust"</p>
+        <motion.button 
+          className="launch-button" 
+          onClick={onLaunch}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Launch dApp
+        </motion.button>
+      </motion.div>
+
+      <motion.div className="info-section" variants={itemVariants}>
+        <h2>Why CertiChain?</h2>
+        <div className="features-grid">
+          <div className="feature-card"><i className="fa-solid fa-cubes"></i><h3>Immutable & Tamper-Proof</h3><p>Leveraging blockchain technology, every credential is a permanent, unchangeable record, eliminating the possibility of fraud.</p></div>
+          <div className="feature-card"><i className="fa-solid fa-cloud-arrow-up"></i><h3>Decentralized & Always Available</h3><p>Files are stored on the IPFS network, ensuring they are always accessible, censorship-resistant, and not controlled by any single entity.</p></div>
+          <div className="feature-card"><i className="fa-solid fa-shield-halved"></i><h3>Instant & Trustworthy Verification</h3><p>Trusted institutions can verify credentials with a single, secure transaction, providing immediate and undeniable proof of authenticity for employers.</p></div>
+        </div>
+      </motion.div>
+
+      <motion.div className="info-section" variants={itemVariants}>
+        <h2>How It Works</h2>
+        <div className="how-it-works-grid">
+          <div className="step-card"><h3>1. Upload</h3><i className="fa-solid fa-arrow-up-from-bracket"></i><p>Connect your Web3 wallet and upload your credential. The file is secured on IPFS and a corresponding record is created on-chain.</p></div>
+          <div className="step-card"><h3>2. Verify</h3><i className="fa-solid fa-check-to-slot"></i><p>The original issuing institution verifies the document, creating a permanent, trustworthy link on the blockchain.</p></div>
+          <div className="step-card"><h3>3. Share</h3><i className="fa-solid fa-magnifying-glass"></i><p>Recruiters can instantly look up a user's wallet address and see a complete, trusted portfolio of their verified credentials.</p></div>
+        </div>
+      </motion.div>
+      
+      <motion.footer className="footer" variants={itemVariants}>
+        <p>© 2025 CertiChain. A Decentralized Identity Project.</p>
+      </motion.footer>
+    </motion.div>
+  );
 }
 
 //============================================
@@ -252,38 +375,51 @@ function RoleSelectionPage({ setView }) {
   );
 }
 
+
+
+// ... (keep the rest of your imports and setup code)
+
 //============================================
-// MAIN DAPP CONTAINER COMPONENT
+// MAIN DAPP CONTAINER COMPONENT (with Notification)
 //============================================
 function MainDApp() {
   const { address, isConnected } = useAccount();
   const { data: balanceData } = useBalance({ address });
   const [view, setView] = useState(null);
+  // NEW: State to control our notification modal
+  const [notification, setNotification] = useState({ isActive: false, message: '', type: '' });
 
   const balance = balanceData ? Number(ethers.formatEther(balanceData.value)).toFixed(5) : '0';
 
   useEffect(() => {
-    if (!isConnected) {
-      setView(null); // Reset view on disconnect
-    }
+    if (!isConnected) { setView(null); }
   }, [isConnected]);
 
   // Render Logic
   if (!isConnected) return <LoginPage />;
-  if (!view) return <RoleSelectionPage setView={setView} />;
 
   return (
-    <div className="dapp-container">
-      <nav className="navbar">
-        <div className="nav-account">Connected: {address.substring(0, 6)}...{address.substring(address.length - 4)}</div>
-        <w3m-button />
-      </nav>
-      <div className="main-content">
-        {view === 'user' && <UserProfile balance={balance} />}
-        {view === 'issuer' && <AdminIssuerPage />}
-        {view === 'public' && <PublicVerifierPage />}
-      </div>
-    </div>
+    // We use a React Fragment <> to return multiple components
+    <>
+      <Notification notification={notification} setNotification={setNotification} />
+
+      {/* Conditionally render the rest of the app based on the 'view' state */}
+      {!view ? <RoleSelectionPage setView={setView} /> : (
+        <div className="dapp-container">
+          <nav className="navbar">
+            <div className="nav-account">Connected: {address.substring(0, 6)}...{address.substring(address.length - 4)}</div>
+            <w3m-button />
+          </nav>
+          <div className="main-content">
+            <AnimatePresence mode="wait">
+              {view === 'user' && ( <motion.div key="user"><UserProfile balance={balance} setNotification={setNotification} /></motion.div> )}
+              {view === 'issuer' && ( <motion.div key="issuer"><AdminIssuerPage setNotification={setNotification} /></motion.div> )}
+              {view === 'public' && ( <motion.div key="public"><PublicVerifierPage setNotification={setNotification} /></motion.div> )}
+            </AnimatePresence>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

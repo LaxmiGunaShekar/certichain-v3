@@ -1,133 +1,120 @@
-// =================================================================
-// src/components/AdminIssuerPage.js (Complete with Wagmi Hooks)
-// =================================================================
-
 import React, { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { readContract } from 'wagmi/actions';
-import { wagmiConfig } from '../App.js'; // Import the wagmiConfig
+import { motion } from 'framer-motion';
+import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { readContracts } from 'wagmi/actions';
+import { wagmiConfig } from '../App.js';
 import { contractAddress, finalABI } from '../App.js';
 import { isAddress } from 'ethers';
 
-const AdminIssuerPage = () => {
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
+};
+
+const AdminIssuerPage = ({ setNotification }) => {
   const { address } = useAccount();
-
-  // --- State for UI ---
   const [newIssuerAddress, setNewIssuerAddress] = useState("");
-  const [userToVerify, setUserToVerify] = useState("");
-  const [userDocs, setUserDocs] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [pendingDocs, setPendingDocs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [verifyingDocIndex, setVerifyingDocIndex] = useState(null);
 
-  // --- Read Contract Data ---
   const { data: ownerAddress } = useReadContract({ address: contractAddress, abi: finalABI, functionName: 'owner' });
   const isOwner = address?.toLowerCase() === ownerAddress?.toLowerCase();
-
   const { data: isAnIssuer } = useReadContract({ address: contractAddress, abi: finalABI, functionName: 'isIssuer', args: [address], enabled: !!address });
 
-  // --- Write Contract Data (for both adding issuers and verifying docs) ---
-  const { data: hash, writeContract, isPending, error, reset } = useWriteContract();
-
-  const handleAddIssuer = (e) => {
-    e.preventDefault();
-    if (!isAddress(newIssuerAddress)) return alert("Please enter a valid Ethereum address.");
-    writeContract({ address: contractAddress, abi: finalABI, functionName: 'addIssuer', args: [newIssuerAddress] });
-  };
-
-  const handleVerifyDocument = (userAddress, docIndex) => {
-    writeContract({ address: contractAddress, abi: finalABI, functionName: 'verifyDocument', args: [userAddress, docIndex] });
-  };
-
-  // --- Transaction Confirmation Logic ---
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+  const { data: queueCountData } = useReadContract({
+    address: contractAddress, abi: finalABI, functionName: 'getIssuerQueueCount', args: [address], enabled: isAnIssuer,
+  });
+  const queueCount = queueCountData ? Number(queueCountData) : 0;
+  const queuePointerConfigs = Array.from({ length: queueCount }, (_, index) => ({
+    address: contractAddress, abi: finalABI, functionName: 'issuerVerificationQueue', args: [address, index],
+  }));
+  const { data: queuePointers } = useReadContracts({
+    contracts: queuePointerConfigs, enabled: queueCount > 0,
+  });
 
   useEffect(() => {
-    if (isConfirmed) {
-      alert("Transaction successful!");
-      reset(); // Reset the hook for the next transaction
-      setNewIssuerAddress("");
-      if (userToVerify) handleSearchUser({ preventDefault: () => {} }); // Refresh search after verifying
-    }
-    if (error) alert(`An error occurred: ${error.shortMessage}`);
-  }, [isConfirmed, error, reset]);
+    const fetchPendingDocuments = async () => {
+      setIsLoading(true);
+      if (queuePointers && queuePointers.length > 0) {
+        const docDetailsConfigs = queuePointers.filter(p => p.status === 'success').map(p => ({ address: contractAddress, abi: finalABI, functionName: 'getDocument', args: [p.result[0], p.result[1]] }));
+        if (docDetailsConfigs.length > 0) {
+            const docDetailsData = await readContracts(wagmiConfig, { contracts: docDetailsConfigs });
+            if (docDetailsData) {
+              const formatted = docDetailsData.map((doc, i) => ({ ...doc, userAddress: queuePointers[i].result[0], docIndex: Number(queuePointers[i].result[1]) })).filter(doc => doc.status === 'success' && !doc.result[3]);
+              setPendingDocs(formatted);
+            }
+        } else { setPendingDocs([]); }
+      } else { setPendingDocs([]); }
+      setIsLoading(false);
+    };
+    fetchPendingDocuments();
+  }, [queuePointers, queueCount]);
 
-  // --- On-Demand Data Fetching for Issuer Search ---
-  const handleSearchUser = async (e) => {
-    e.preventDefault();
-    if (!isAddress(userToVerify)) return alert("Please enter a valid Ethereum address.");
-    setIsSearching(true);
-    setUserDocs([]);
-    try {
-      const docCount = await readContract(wagmiConfig, { address: contractAddress, abi: finalABI, functionName: 'getDocumentCount', args: [userToVerify] });
-      const docPromises = [];
-      for (let i = 0; i < Number(docCount); i++) {
-        docPromises.push(readContract(wagmiConfig, { address: contractAddress, abi: finalABI, functionName: 'getDocument', args: [userToVerify, i] }));
-      }
-      const resolvedDocs = await Promise.all(docPromises);
-      const formattedDocs = resolvedDocs
-        .map((doc, index) => ({
-          index: index, ipfsHash: doc[0], documentName: doc[1], issuer: doc[2], isVerified: doc[3]
-        }))
-        .filter(doc => !doc.isVerified); // Only show unverified documents to the issuer
-      setUserDocs(formattedDocs);
-    } catch (err) {
-      console.error("Error searching for user documents:", err);
-      alert("Could not fetch documents for this user.");
-    } finally {
-      setIsSearching(false);
-    }
-  };
+  const { data: hash, writeContract, isPending, error: writeError, reset } = useWriteContract();
+  const { isSuccess, isError, error: receiptError } = useWaitForTransactionReceipt({ hash });
 
-  // --- Render Logic ---
+  useEffect(() => {
+    if (isSuccess) {
+      setNotification({ isActive: true, message: 'Transaction successful! The page will now refresh.', type: 'success' });
+      setTimeout(() => window.location.reload(), 2000);
+    }
+    if (isError || writeError) {
+      const errorMsg = writeError?.shortMessage || receiptError?.shortMessage;
+      setNotification({ isActive: true, message: `Transaction Failed: ${errorMsg}`, type: 'error' });
+      reset();
+    }
+  }, [isSuccess, isError, writeError, receiptError, reset, setNotification]);
+
+  const handleAddIssuer = (e) => { e.preventDefault(); if (!isAddress(newIssuerAddress)) return setNotification({isActive: true, message: 'Invalid Ethereum address.', type: 'error'}); writeContract({ address: contractAddress, abi: finalABI, functionName: 'addIssuer', args: [newIssuerAddress] }); };
+  const handleVerifyDocument = (userAddress, docIndex) => { setVerifyingDocIndex(docIndex); writeContract({ address: contractAddress, abi: finalABI, functionName: 'verifyDocument', args: [userAddress, docIndex] }); };
+  const docsToDisplay = searchTerm ? pendingDocs.filter(doc => doc.userAddress.toLowerCase().includes(searchTerm.toLowerCase())) : pendingDocs;
+
   if (isOwner) {
     return (
-      <div className="admin-panel-container">
+      <motion.div className="admin-panel-container" variants={itemVariants} initial="hidden" animate="visible">
         <div className="card">
-          <h3>Admin Panel</h3>
-          <p>As the platform owner, you can grant verification rights to trusted institutions by adding their wallet address below.</p>
+          <h3>Admin Panel</h3><p>As the platform owner, you can grant verification rights by adding an issuer's wallet address below.</p>
           <form onSubmit={handleAddIssuer}>
             <input type="text" placeholder="Enter new issuer's wallet address" value={newIssuerAddress} onChange={(e) => setNewIssuerAddress(e.target.value)} required />
-            <button type="submit" disabled={isPending || isConfirming}>{isPending ? 'Confirming...' : isConfirming ? 'Processing...' : 'Add Issuer'}</button>
+            <button type="submit" disabled={isPending}>{isPending ? 'Processing...' : 'Add Issuer'}</button>
           </form>
         </div>
-      </div>
+      </motion.div>
     );
   }
-
   if (isAnIssuer) {
     return (
-      <div className="issuer-panel-container">
+      <motion.div className="issuer-panel-container" variants={itemVariants} initial="hidden" animate="visible">
         <div className="card">
-          <h3>Issuer Dashboard</h3>
-          <p>As a trusted issuer, enter a user's wallet address to see a list of their credentials that are pending your verification.</p>
-          <form onSubmit={handleSearchUser}>
-            <input type="text" placeholder="Student Wallet Address" value={userToVerify} onChange={(e) => setUserToVerify(e.target.value)} required />
-            <button type="submit" disabled={isSearching}>{isSearching ? "Searching..." : "Search"}</button>
-          </form>
-          <div className="document-list" style={{ marginTop: '20px' }}>
-            {isSearching ? <p>Loading...</p> : userDocs.length === 0 && userToVerify ? <p>No documents are pending verification for this user.</p> :
-              userDocs.map(doc => (
-                <div key={doc.index} className="document-item">
-                  <span>{doc.documentName}</span>
+          <h3>Issuer Dashboard</h3><p>The following documents have been submitted for your verification. You can search by a user's wallet address to filter the list.</p>
+          <div className="search-bar" style={{ margin: '20px 0' }}><input type="text" placeholder="Filter by Student Wallet Address..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
+          <div className="document-list-header" style={{ marginTop: '30px', borderTop: '1px solid #4a4a68', paddingTop: '20px' }}><h4>Pending Verifications</h4><p style={{fontSize: '0.9rem', color: '#ccc'}}>These documents have been specifically tagged for your review.</p></div>
+          <div className="document-list">
+            {isLoading && <p>Loading verification requests...</p>}
+            {!isLoading && docsToDisplay.length === 0 && <p>There are no documents pending your verification.</p>}
+            {!isLoading && docsToDisplay.map(doc => {
+              const isCurrentDocPending = isPending && verifyingDocIndex === doc.docIndex;
+              return (
+                <div key={`${doc.userAddress}-${doc.docIndex}`} className="document-item">
+                  <span>User: `{doc.userAddress.substring(0, 6)}...` - Doc: "{doc.result[1]}"</span>
                   <div className="document-actions">
-                    <a href={`https://gateway.pinata.cloud/ipfs/${doc.ipfsHash}`} target="_blank" rel="noopener noreferrer">View Document</a>
-                    <button onClick={() => handleVerifyDocument(userToVerify, doc.index)} disabled={isPending || isConfirming}>
-                      {isPending || isConfirming ? 'Verifying...' : 'Verify'}
-                    </button>
+                    <a href={`https://gateway.pinata.cloud/ipfs/${doc.result[0]}`} target="_blank" rel="noopener noreferrer">View Document</a>
+                    <button onClick={() => handleVerifyDocument(doc.userAddress, doc.docIndex)} disabled={isPending}>{isCurrentDocPending ? 'Verifying...' : 'Verify'}</button>
                   </div>
                 </div>
-              ))
-            }
+              )
+            })}
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
-
   return (
-    <div className="card">
-      <h3>Access Denied</h3>
-      <p>Your wallet address does not have Admin or Issuer privileges.</p>
-    </div>
+    <motion.div className="card" variants={itemVariants} initial="hidden" animate="visible">
+      <h3>Access Denied</h3><p>Your wallet address does not have Admin or Issuer privileges.</p>
+    </motion.div>
   );
 };
 
