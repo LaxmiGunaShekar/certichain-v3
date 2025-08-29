@@ -57,7 +57,7 @@ To run this project locally, follow these steps:
 
 **1. Clone the repository:**
 ```bash
-git clone [https://github.com/Your-Username/certichain-v3.git](https://github.com/Your-Username/certichain-v3.git)
+git clone [https://github.com/LaxmiGunaShekar/certichain-v3.git](https://github.com/LaxmiGunaShekar/certichain-v3.git)
 cd certichain-v3
 
 
